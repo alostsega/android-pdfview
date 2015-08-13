@@ -29,6 +29,7 @@ import com.joanzapata.pdfview.exception.FileNotFoundException;
 import com.joanzapata.pdfview.listener.OnDrawListener;
 import com.joanzapata.pdfview.listener.OnLoadCompleteListener;
 import com.joanzapata.pdfview.listener.OnPageChangeListener;
+import com.joanzapata.pdfview.listener.OnZoomListener;
 import com.joanzapata.pdfview.model.PagePart;
 import com.joanzapata.pdfview.util.ArrayUtils;
 import com.joanzapata.pdfview.util.Constants;
@@ -150,6 +151,12 @@ public class PDFView extends SurfaceView {
 
     /** Call back object to call when the page has changed */
     private OnPageChangeListener onPageChangeListener;
+
+    private OnZoomListener onZoomListener;
+
+    /*if(onZoomListener != null){
+            onZoomListener.onZoom(dzoom,pivot);
+        }*/
 
     /** Call back object to call when the above layer is to drawn */
     private OnDrawListener onDrawListener;
@@ -295,6 +302,10 @@ public class PDFView extends SurfaceView {
         this.onDrawListener = onDrawListener;
     }
 
+    private void setOnZoomListener(OnZoomListener onZoomListener) {
+        this.onZoomListener = onZoomListener;
+    }
+
     public void recycle() {
 
         // Stop tasks
@@ -360,7 +371,7 @@ public class PDFView extends SurfaceView {
         // abstraction of the screen position when rendering the parts.
 
         // Draws background
-        canvas.drawColor(Color.WHITE);
+        canvas.drawColor(Color.GRAY);
 
         if (state != State.SHOWN) {
             return;
@@ -906,6 +917,9 @@ public class PDFView extends SurfaceView {
 
     /** @see #zoomCenteredTo(float, PointF) */
     public void zoomCenteredRelativeTo(float dzoom, PointF pivot) {
+        if(onZoomListener != null){
+            onZoomListener.onZoom(dzoom,pivot);
+        }
         zoomCenteredTo(zoom * dzoom, pivot);
     }
 
@@ -995,6 +1009,8 @@ public class PDFView extends SurfaceView {
 
         private OnPageChangeListener onPageChangeListener;
 
+        private OnZoomListener onZoomListener;
+
         private int defaultPage = 1;
 
         private boolean showMinimap = false;
@@ -1039,6 +1055,11 @@ public class PDFView extends SurfaceView {
             return this;
         }
 
+        public Configurator onZoom(OnZoomListener onZoomListener) {
+            this.onZoomListener = onZoomListener;
+            return this;
+        }
+
         public Configurator defaultPage(int defaultPage) {
             this.defaultPage = defaultPage;
             return this;
@@ -1064,6 +1085,7 @@ public class PDFView extends SurfaceView {
             PDFView.this.recycle();
             PDFView.this.setOnDrawListener(onDrawListener);
             PDFView.this.setOnPageChangeListener(onPageChangeListener);
+            PDFView.this.setOnZoomListener(onZoomListener);
             PDFView.this.enableSwipe(enableSwipe);
             PDFView.this.enableDoubletap(enableDoubletap);
             PDFView.this.setDefaultPage(defaultPage);

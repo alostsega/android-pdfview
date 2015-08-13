@@ -52,7 +52,12 @@ public class ArrayUtils {
         }
 
         int index = 0;
-        result[0] = originalUserPages[0];
+
+        if(originalUserPages[0] > 0)
+            result[0] = 0;
+        else
+            result[0] = originalUserPages[0];
+
         for (int i = 1; i < originalUserPages.length; i++) {
             if (originalUserPages[i] != originalUserPages[i - 1]) {
                 index++;
